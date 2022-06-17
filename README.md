@@ -44,7 +44,35 @@ snowsql -a <account-name> -u <username>
 snowsql -a uz64318.southeast-asia.azure -u OSTECHNIX
 ```
 
-
+#### Basic commands:
+- Show database:
+```bash
+show database;
+```
+- Use database:
+```bash
+use <database_name>;
+```
+- Show SCHEMAS:
+```bash
+show SCHEMAS;
+```
+- Use SCHEMAS:
+```bash
+use <database_name>.<SCHEMAS_name>;
+```
+- Create Data warehouse:
+```bash
+create or replace warehouse ostech_demo with
+warehouse_size='X-SMALL' 
+auto_suspend = 180 
+auto_resume = true
+initially_suspended = true;
+```
+- Show warehouse
+```bash
+show WAREHOUSES; 
+```
 
 
 
