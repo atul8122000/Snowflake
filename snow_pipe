@@ -1,0 +1,40 @@
+--create database
+create database snow_pipe
+
+--use database
+use database snow_pipe
+
+--create stage
+create or replace stage snow_pipe.public.my_stage URL = '<aws-S3-bucket>',
+credentials=(aws_key_id='<aws_key_id>' aws_secret_key='<aws_secret_key>');
+
+--list stage
+list @my_stage
+
+-- Create table first
+CREATE OR REPLACE TABLE snow_pipe.PUBLIC.employees (
+id INT,
+first_name STRING,
+last_name STRING,
+email STRING,
+location STRING,
+department STRING
+)
+
+--copy into table from stage
+copy into employees
+from @my_stage
+pattern='.*.csv'
+file_format= (type = csv field_delimiter=',' skip_header=1)
+
+--check table
+select count(*)from employees
+
+--create pipe
+create or replace pipe demo_pipe
+auto_ingest = true
+as copy into employees from @my_stage
+file_format= (type = csv field_delimiter=',' skip_header=1)
+
+--show pipe
+show pipes

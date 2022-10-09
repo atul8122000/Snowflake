@@ -1,0 +1,15 @@
+-- Create Reader Account --
+CREATE MANAGED ACCOUNT name admin_name='name', admin_password='Name@123', type=reader, COMMENT='';
+
+
+-- Show accounts
+SHOW MANAGED ACCOUNTS;
+
+-- Share the data -- 
+
+ALTER SHARE ORDERS_SHARE 
+ADD ACCOUNT = <reader-account-id>;
+
+ALTER SHARE ORDERS_SHARE 
+ADD ACCOUNT =  <reader-account-id>
+SHARE_RESTRICTIONS=false;

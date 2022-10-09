@@ -1,0 +1,132 @@
+CREATE OR REPLACE DATABASE data_share;
+
+create or replace stage data_share.public.my_stage URL = '<AWS_s3_bucket>',
+	credentials=(aws_key_id='<aws_key_id>' aws_secret_key='<aws_secret_key>');
+
+LIST @my_stage;
+
+CREATE OR REPLACE TABLE data_share.PUBLIC.employees (
+	id INT,
+	first_name STRING,
+	last_name STRING,
+	email STRING,
+	location STRING,
+	department STRING
+	)
+  copy into employees
+	from @my_stage
+	pattern='.*.csv'
+	file_format= (type = csv field_delimiter=',' skip_header=1)
+ 
+ select count(*)from employees
+ 
+ CREATE OR REPLACE SHARE ORDERS_SHARE;
+ 
+ // Grant usage on database
+GRANT USAGE ON DATABASE data_share TO SHARE ORDERS_SHARE; 
+
+// Grant usage on schema
+GRANT USAGE ON SCHEMA data_share.PUBLIC TO SHARE ORDERS_SHARE; 
+
+// Grant SELECT on table
+
+GRANT SELECT ON TABLE data_share.PUBLIC.employees TO SHARE ORDERS_SHARE; 
+
+// Validate Grants
+SHOW GRANTS TO SHARE ORDERS_SHARE;
+
+
+---- Add Consumer Account ----
+ALTER SHARE ORDERS_SHARE ADD ACCOUNT=<consumer-account-id>;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~create reader account~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+{
+// Make sure to have selected the role of accountadmin
+-- Create Reader Account --
+CREATE MANAGED ACCOUNT TEST admin_name='test', admin_password='Test@123', type=reader, COMMENT='';
+
+// Show accounts
+SHOW MANAGED ACCOUNTS;
+
+CREATE OR REPLACE SHARE ORDERS_SHARE;
+ 
+ // Grant usage on database
+GRANT USAGE ON DATABASE data_share TO SHARE ORDERS_SHARE; 
+
+// Grant usage on schema
+GRANT USAGE ON SCHEMA data_share.PUBLIC TO SHARE ORDERS_SHARE; 
+
+// Grant SELECT on table
+
+GRANT SELECT ON TABLE data_share.PUBLIC.employees TO SHARE ORDERS_SHARE; 
+
+// Validate Grants
+SHOW GRANTS TO SHARE ORDERS_SHARE;
+
+
+-- Share the data -- 
+
+ALTER SHARE ORDERS_SHARE 
+ADD ACCOUNT = TS65989
+SHARE_RESTRICTIONS=false;
+
+
+-- Create database from share --
+
+// Show all shares (consumer & producers)
+SHOW SHARES;
+
+// See details on share
+DESC SHARE UX94833.ORDERS_SHARE;
+
+// Create a database in consumer account using the share
+CREATE DATABASE DATA_SHARE_DB FROM SHARE UX94833.ORDERS_SHARE;
+
+// Setup virtual warehouse
+CREATE WAREHOUSE READ_WH WITH
+WAREHOUSE_SIZE='X-SMALL'
+AUTO_SUSPEND = 180
+AUTO_RESUME = TRUE
+INITIALLY_SUSPENDED = TRUE;
+
+// Validate table access
+SELECT * FROM "DATA_SHARE_DB"."PUBLIC"."EMPLOYEES"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[
+sign in with same url with below user id and password and validate by command //select * from <table_name>//
+-- Create and set up users --
+
+// Create user
+CREATE USER MYRIAM PASSWORD = 'difficult_passw@ord=123'
+
+// Grant usage on warehouse
+GRANT USAGE ON WAREHOUSE READ_WH TO ROLE PUBLIC;
+
+
+// Grating privileges on a Shared Database for other users
+GRANT IMPORTED PRIVILEGES ON DATABASE DATA_SHARE_DB TO ROLE PUBLIC;
+]
+~~~~~~~~~~~~~~~~~~~~~~~~~share database and schema~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Create a share object
+CREATE OR REPLACE SHARE ORDERS_SHARE;
+
+---- Setup Grants ----
+// Grant usage on database
+GRANT USAGE ON DATABASE DATA_S TO SHARE ORDERS_SHARE; 
+
+// Grant usage on schema
+GRANT USAGE ON SCHEMA DATA_S.PUBLIC TO SHARE ORDERS_SHARE; 
+
+// Grant SELECT on all table
+GRANT SELECT ON ALL TABLE IN SCHEMA SCHEMA_NAME TO SHARE ORDERS_SHARE; 
+GRANT SELECT ON ALL TABLE IN DATABASE DB_NAME TO SHARE ORDERS_SHARE; 
+
+// Validate Grants
+SHOW GRANTS TO SHARE ORDERS_SHARE;
+
+---- Add Consumer Account ----
+ALTER SHARE ORDERS_SHARE ADD ACCOUNT=<consumer-account-id>;
+ 

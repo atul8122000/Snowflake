@@ -1,0 +1,9 @@
+
+--Using time travel: Method 1 - 2 minutes back
+SELECT * FROM database.schema.table at (OFFSET => -60*1.5)
+
+--Using time travel: Method 2 - before timestamp
+SELECT * FROM database.schema.table before (timestamp => '2021-04-15 17:47:50.581'::timestamp)
+
+--Using time travel: Method 3 - before Query ID
+SELECT * FROM database.schema.table before (statement => '019b9ee5-0500-8473-0043-4d8300073062')
